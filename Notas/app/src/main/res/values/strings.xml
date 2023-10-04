@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Notas</string>
+    <string name="notas">Notas</string>
+    <string name="tareas">Tareas</string>
+</resources>
