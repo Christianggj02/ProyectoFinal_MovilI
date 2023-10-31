@@ -1,7 +1,6 @@
-package com.example.notas.ui.theme
+package com.example.notas.ui.theme.tareas
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -73,44 +72,19 @@ private val DarkColors = darkColorScheme(
     scrim = md_theme_dark_scrim,
 )
 
-private val otherLightColors = lightColorScheme(
-    primary = Notas,
-    primaryContainer = light_NotasContainer,
-    onPrimary = light_onNotas,
-    onPrimaryContainer = light_onNotasContainer,
-    tertiary = Notas
-)
-
-private val otherDarkColors = darkColorScheme(
-    primary = dark_Notas,
-    primaryContainer = dark_NotasContainer,
-    onPrimary = dark_onNotas,
-    onPrimaryContainer = dark_onNotasContainer,
-    tertiary = md_theme_dark_tertiary
-)
-
 @Composable
-fun otherTheme (): ColorScheme {
-    if (!isSystemInDarkTheme()) {
-        return otherLightColors
-    } else {
-        return otherDarkColors
-    }
-}
-
-@Composable
-fun PrincipalTheme(
-    useDarkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable() () -> Unit
+fun TareasTheme(
+  useDarkTheme: Boolean = isSystemInDarkTheme(),
+  content: @Composable() () -> Unit
 ) {
-    val colors = if (!useDarkTheme) {
-        LightColors
-    } else {
-        DarkColors
-    }
+  val colors = if (!useDarkTheme) {
+    LightColors
+  } else {
+    DarkColors
+  }
 
-    MaterialTheme(
-        colorScheme = colors,
-        content = content,
-    )
+  MaterialTheme(
+    colorScheme = colors,
+    content = content
+  )
 }

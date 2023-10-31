@@ -1,5 +1,10 @@
 <resources>
-    <string name="app_name">Notas</string>
+    <string name="app_name">Notitas</string>
     <string name="notas">Notas</string>
     <string name="tareas">Tareas</string>
+    <string name="allNotas">Todas las Notas</string>
+    <string name="allTareas">Todas las Tareas</string>
+    <string name="nota">Nota</string>
+    <string name="CrearTarea">Crear tarea</string>
+    <string name="CrearNota">Crear nota</string>
 </resources>
