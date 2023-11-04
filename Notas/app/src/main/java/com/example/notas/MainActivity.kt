@@ -5,8 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.StringRes
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.CircleShape
@@ -30,14 +30,13 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.NotasTheme
-import com.example.notas.crearNotaScreen.CrearNota
-import com.example.notas.crearNotaScreen.NotasViewModel
 import com.example.notas.ui.theme.PrincipalTheme
 import com.example.notas.ui.theme.seed
 import com.example.notas.ui.theme.tareas.TareasTheme
@@ -78,7 +77,9 @@ fun MyAppNavHost(
                 onNavigateToTareas = {navController.navigate("Tareas")}
             )
         }
-        composable("crearNota") { CrearNota(NotasViewModel()) }
+        composable("crearNota") {
+            CrearNota(navController = navController)
+        }
         composable("Notas") {
             NotasTheme {
                 Surface(
@@ -149,7 +150,9 @@ fun TopAppBar(
     @StringRes titulo: Int,
     backgrounColor: Color,
     color: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    expanded: Dp = 224.dp,
+    titlePadding: Dp = 70.dp
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -158,11 +161,11 @@ fun TopAppBar(
                 fontFamily = FontFamily(Font(R.font.caveat_bold, FontWeight.Bold)),
                 color = color,
                 style = MaterialTheme.typography.displayLarge,
-                modifier = Modifier.padding(top = 70.dp)
+                modifier = Modifier.padding(top = titlePadding)
             )
         },
-        modifier = modifier
-            .fillMaxHeight(),
+        modifier = modifier.height(expanded)
+            /*.fillMaxHeight(expanded)*/,
         colors = TopAppBarDefaults.largeTopAppBarColors(
             containerColor = backgrounColor,
             titleContentColor = color,

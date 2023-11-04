@@ -26,31 +26,38 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.notas.model.Tarea
 import com.example.notas.model.TareasRepository
 import com.example.notas.ui.theme.md_theme_light_tertiaryContainer
 import com.example.notas.ui.theme.tareas.TareasTheme
 import com.example.notas.ui.theme.tareas.seed
+import com.example.proyectofinal_jma.sizeScreen.WindowInfo
+import com.example.proyectofinal_jma.sizeScreen.rememberWindowInfo
 
 class TareasScreen: ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -72,6 +79,8 @@ class TareasScreen: ComponentActivity() {
 
 @Composable
 fun Tareas() {
+    var expandedTitle: Dp by remember{ mutableStateOf(224.dp) }
+    var paddingTitle: Dp by remember{ mutableStateOf(70.dp) }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -79,12 +88,27 @@ fun Tareas() {
                 titulo = R.string.allTareas,
                 backgrounColor = MaterialTheme.colorScheme.primary,
                 color = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.sizeIn(maxHeight = 224.dp)
+                modifier = Modifier.sizeIn(maxHeight = 224.dp),
+                expandedTitle,
+                paddingTitle
             )
         },
     ){
         val tareas = TareasRepository.tareas
-        TareasList(tareas,modifier = Modifier.padding(top = 16.dp),contentPadding = it)
+        val window = rememberWindowInfo()
+
+        if(window.screenWindthInfo is WindowInfo.WindowType.Compact){
+            TareasList(tareas,modifier = Modifier.padding(top = 16.dp),contentPadding = it)
+        }
+        else if(window.screenWindthInfo is WindowInfo.WindowType.Medium){
+            TareasList(tareas,modifier = Modifier.padding(top = 16.dp),contentPadding = it, 2)
+            expandedTitle = 100.dp
+            paddingTitle = 0.dp
+        }else if(window.screenWindthInfo is WindowInfo.WindowType.Expanded){
+            TareasList(tareas,modifier = Modifier.padding(top = 16.dp),contentPadding = it, 3)
+            expandedTitle = 100.dp
+            paddingTitle = 0.dp
+        }
     }
 }
 
@@ -94,6 +118,7 @@ fun TareasList(
     tareas: List<Tarea>,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
+    columns: Int = 1
 ) {
     val visibleState = remember {
         MutableTransitionState(false).apply {
@@ -111,11 +136,12 @@ fun TareasList(
         exit = fadeOut(),
         modifier = modifier
     ) {
-        LazyColumn(
+        LazyVerticalGrid(columns = GridCells.Fixed(columns),
             verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = contentPadding,
             modifier = Modifier.padding(8.dp)
-        ) {
+        ){
             itemsIndexed(tareas) { index, tarea ->
                 val backColor = if(index%2==0){
                     MaterialTheme.colorScheme.background
@@ -134,7 +160,6 @@ fun TareasList(
                                 initialOffsetY = { it * (index + 1) } // staggered entrance
                             )
                         ),
-                    backColor = md_theme_light_tertiaryContainer
                 )
             }
         }
@@ -145,8 +170,6 @@ fun TareasList(
 fun TareaListItem(
     nota: Tarea,
     modifier: Modifier = Modifier,
-    backColor: Color,
-
     ) {
     Card(
         onClick = {},
@@ -157,18 +180,31 @@ fun TareaListItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(8.dp)
                 .sizeIn(minHeight = 72.dp)
         ) {
+            Checkbox(
+                checked = false, onCheckedChange = {},
+                modifier = Modifier.padding(0.dp)
+                    .width(32.dp),
+            )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = nota.titulo,
+                    modifier = Modifier.padding(top = 12.dp),
                     fontFamily = FontFamily(Font(R.font.caveat_bold, FontWeight.Bold)),
                     //color = MaterialTheme.colorScheme.onTertiaryContainer,
                     style = MaterialTheme.typography.bodyLarge
                 )
+                Text(
+                    text = nota.nota,
+                    modifier = Modifier.padding(4.dp) ,
+                    fontFamily = FontFamily(Font(R.font.caveat_regular, FontWeight.Bold)),
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
             Spacer(Modifier.width(16.dp))
+
             Box(
                 modifier = Modifier
                     .size(72.dp)
@@ -183,11 +219,7 @@ fun TareaListItem(
                 )*/
             }
         }
-        Text(
-            text = nota.nota,
-            fontFamily = FontFamily(Font(R.font.caveat_regular, FontWeight.Bold)),
-            style = MaterialTheme.typography.bodyLarge
-        )
+
     }
 }
 
@@ -198,6 +230,6 @@ fun TareaListItem(
 @Composable
 fun TareasPreview() {
     TareasTheme {
-        Tareas()
+        TareaListItem(Tarea(false,"Tarea 1", "Nota bla bla bla"))
     }
 }

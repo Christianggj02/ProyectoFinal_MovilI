@@ -7,4 +7,6 @@
     <string name="nota">Nota</string>
     <string name="CrearTarea">Crear tarea</string>
     <string name="CrearNota">Crear nota</string>
+    <string name="tituloNota">Titulo</string>
+    <string name="guardarNota">Guardar</string>
 </resources>

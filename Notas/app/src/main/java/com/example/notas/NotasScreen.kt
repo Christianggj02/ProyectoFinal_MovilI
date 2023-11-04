@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,30 +32,33 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.compose.NotasTheme
 import com.example.notas.model.Nota
-import com.example.notas.model.NotasRepository
+import com.example.notas.model.NotasModelRepository
 import com.example.notas.ui.theme.md_theme_light_onPrimary
 import com.example.notas.ui.theme.md_theme_light_tertiaryContainer
 import com.example.notas.ui.theme.otherTheme
+import com.example.proyectofinal_jma.sizeScreen.WindowInfo
+import com.example.proyectofinal_jma.sizeScreen.rememberWindowInfo
 
 class NotasSacreen: ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -78,6 +80,9 @@ class NotasSacreen: ComponentActivity() {
 
 @Composable
 fun Notas() {
+    var expandedTitle: Dp by remember{ mutableStateOf(224.dp) }
+    var paddingTitle: Dp by remember{ mutableStateOf(70.dp) }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -85,12 +90,28 @@ fun Notas() {
                 titulo = R.string.allNotas,
                 backgrounColor = otherTheme().primary,
                 color = md_theme_light_onPrimary,
-                modifier = Modifier.sizeIn(maxHeight = 224.dp)
+                modifier = Modifier.sizeIn(maxHeight = 224.dp),
+                expandedTitle,
+                paddingTitle
             )
         },
     ){
-        val notas =NotasRepository.notas
-        NotasList(notas,modifier = Modifier.padding(top = 16.dp),contentPadding = it)
+        val notas =NotasModelRepository.notas
+        val window = rememberWindowInfo()
+
+        if(window.screenWindthInfo is WindowInfo.WindowType.Compact){
+            NotasList(notas,modifier = Modifier.padding(top = 16.dp),contentPadding = it)
+        }
+        else if(window.screenWindthInfo is WindowInfo.WindowType.Medium){
+            NotasList(notas,modifier = Modifier.padding(top = 16.dp),contentPadding = it, 3)
+            expandedTitle = 100.dp
+            paddingTitle = 0.dp
+        }else if(window.screenWindthInfo is WindowInfo.WindowType.Expanded){
+            NotasList(notas,modifier = Modifier.padding(top = 16.dp),contentPadding = it, 4)
+            expandedTitle = 100.dp
+            paddingTitle = 0.dp
+        }
+
     }
 }
 
@@ -100,6 +121,7 @@ fun NotasList(
     notas: List<Nota>,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
+    columns: Int = 2
 ) {
     val visibleState = remember {
         MutableTransitionState(false).apply {
@@ -117,7 +139,7 @@ fun NotasList(
         exit = fadeOut(),
         modifier = modifier
     ) {
-        LazyVerticalGrid(columns = GridCells.Fixed(2),
+        LazyVerticalGrid(columns = GridCells.Fixed(columns),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = contentPadding,
@@ -153,7 +175,6 @@ fun NotaListItem(
     nota: Nota,
     modifier: Modifier = Modifier,
     backColor: Color,
-
     ) {
     Card(
         onClick = {},
@@ -174,6 +195,12 @@ fun NotaListItem(
                     //color = MaterialTheme.colorScheme.onTertiaryContainer,
                     style = MaterialTheme.typography.bodyLarge
                 )
+                Text(
+                    text = nota.nota,
+                    modifier = Modifier.padding(16.dp),
+                    fontFamily = FontFamily(Font(R.font.caveat_regular, FontWeight.Bold)),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
             }
             Spacer(Modifier.width(16.dp))
             Box(
@@ -190,42 +217,22 @@ fun NotaListItem(
                 )*/
             }
         }
-        Text(
-            text = nota.nota,
-            fontFamily = FontFamily(Font(R.font.caveat_regular, FontWeight.Bold)),
-            style = MaterialTheme.typography.bodyLarge
-        )
     }
 }
 
-
-@Composable
-fun TitleBarNotas(modifier: Modifier = Modifier) {
-    CenterAlignedTopAppBar(
-        modifier = modifier.fillMaxHeight(),
-        title = {
-            Text(
-                text = stringResource(R.string.allNotas),
-                fontFamily = FontFamily(Font(R.font.caveat_bold, FontWeight.Bold)),
-                color = md_theme_light_onPrimary,
-                style = MaterialTheme.typography.displayLarge,
-                modifier = Modifier
-                    .padding(top = 70.dp)
-            )
-        },
-        colors = TopAppBarDefaults.largeTopAppBarColors(
-            containerColor = otherTheme().primary,
-            titleContentColor = otherTheme().onPrimary,
-        ),
-        scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun NotasPreview() {
     NotasTheme {
+        /*NotaListItem(
+            Nota(
+                titulo = "Nota 1",
+                nota = "Hacer la tarea",
+            ),
+            backColor = md_theme_light_tertiaryContainer
+        )*/
         Notas()
     }
 }
